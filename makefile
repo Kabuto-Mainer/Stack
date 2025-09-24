@@ -5,25 +5,34 @@ flags = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop
 
 
 S_stack.o: S_stack.cpp
-	g++ -c S_stack.cpp $(flags)
+	@(g++ -c S_stack.cpp $(flags))
+	@echo --- Compilation S_stack.cpp to S_stack.o finished successfully ---
 
 main.o: main.cpp
-	g++ -c main.cpp $(flags)
+	@(g++ -c main.cpp $(flags))
+	@echo --- Compilation main.cpp to main.o finished successfully---
 
 build: S_stack.o main.o
-	g++ S_stack.o main.o $(flags) -o main.exe
+	@(g++ S_stack.o main.o $(flags) -o main.exe)
+	@echo --- Build main.exe finished successfully ---
 
 run:
-	./main.exe
+	@echo -- Running main.exe ---
+	@(./main.exe)
+	@echo --- Completion running main.exe ---
 
 clean:
-	rm -rf *.o
-	@echo "Program clean"
+	@rm -rf *.o
+	@echo -- All .o file have been deleted ---
 
 gitcom:
-	git add makefile color.h main.cpp main.exe S_stack.cpp S_stack.h
-	git commit -m "$(m)"
-	git push
+	@(git add makefile color.h main.cpp main.exe S_stack.cpp S_stack.h)
+	@echo -- Add file to git commit ---
+	@(git commit -m "$(m)")
+	@echo --- Git committing ---
+	@(git push)
+	@echo --- Git push ---
+
 
 
 
