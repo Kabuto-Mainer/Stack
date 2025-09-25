@@ -2,15 +2,23 @@
 #define S_STACK_H
 #include <stdio.h>
 
+//TODO Undef all name
+
 const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
 const int MIN_ADDRESS = 8000;
 const int AMOUNT_PRINT_ELEMENT = 10;
+const int REALLOC_ADD_SIZE = 2;
 
 #define USER_MOD 0
 #define DEBUG 1
+#define AUTO_REALLOC 0
+#define NOT_AUTO_REALLOC 1
 
 
-#define MOD_START USER_MOD
+#define MOD_START DEBUG
+#define REALLOC_TYPE AUTO_REALLOC
+
+
 #define STRUCT_INFORMATION
 
 struct error_inf{
@@ -64,12 +72,22 @@ struct stack_struct{
     }\
    }
 
+   #if REALLOC_TYPE == AUTO_REALLOC
+   #define STACK_PUSH_CHECK(stack_address) { \
+    if ((stack_address)->capacity <= stack_address->size) { \
+       stack_realloc(stack_address, stack_address->capacity + REALLOC_ADD_SIZE); \
+    }\
+   }
+
+   #else
    #define STACK_PUSH_CHECK(stack_address) { \
     if ((stack_address)->capacity <= stack_address->size) { \
        (stack_address)->inf_adr_error.current_error = BAD_PUSH_SIZE; \
        ERROR_FUNC_RETURN(stack_address); \
     }\
    }
+
+   #endif // REALLOC_TYPE == AUTO_REALLOC
 
    #define STACK_POP_CHECK(stack_address) { \
     if ((stack_address)->size < 1) { \

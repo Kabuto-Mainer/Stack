@@ -119,6 +119,7 @@ int stack_error(stack_struct* stack_address) {
 #else
 int stack_error(stack_struct* stack_address) {
     printf("ERROR ith stack_error in USER_MODE\n");
+    return 0;
 }
 #endif // MOD_START == DEBUG
 
@@ -135,6 +136,7 @@ stack_error_t stack_realloc(stack_struct* stack_address,
 
     STACK_REALLOC_ADDRESS(stack_address);
 
+    stack_address->capacity = size_of_stack;
     stack_address->data = buffer_address;
 
     return NOT_ERRORS;
@@ -207,6 +209,7 @@ int stack_dump(stack_struct* stack_address) {
 #else
 int stack_dump(stack_struct* stack_address) {
     printf("ERROR with dump in USER_MOD\n");
+    return 0;
 }
 
 #endif //MOS_START == DEBUG
