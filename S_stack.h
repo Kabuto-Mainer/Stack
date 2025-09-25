@@ -2,25 +2,16 @@
 #define S_STACK_H
 #include <stdio.h>
 
-enum work_mode{
-    FOR_USERS = 0,
-    DEBUG = 1
-};
-
 const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
 const int MIN_ADDRESS = 8000;
+const int AMOUNT_PRINT_ELEMENT = 10;
 
-#define MOD_START 0
+#define USER_MOD 0
+#define DEBUG 1
+
+
+#define MOD_START USER_MOD
 #define STRUCT_INFORMATION
-
-// #if MOD_START == 1
-//    #define STRUCT_INFORMATION \
-//     error_inf inf_adr_error; \
-//     location_inf inf_adr_location; \
-// #else
-//    #define STRUCT_INFORMATION /*Nothing*/
-// #endif
-
 
 struct error_inf{
    int current_error;
@@ -33,20 +24,10 @@ struct location_inf{
    char* creation_file;
    int creation_line;
 };
-//
-// struct stack_struct{
-//    int* data;
-//    ssize_t size;
-//    ssize_t capacity;
-//
-//    STRUCT_INFORMATION
-//    // error_inf inf_adr_error;
-//    // location_inf inf_adr_location;
-// };
 
 
 
-#if MOD_START == 1
+#if MOD_START == DEBUG
    #define STRUCT_INFORMATION \
     error_inf inf_adr_error; \
     location_inf inf_adr_location;
@@ -136,10 +117,7 @@ struct stack_struct{
    #define STACK_REALLOC_SIZE(stack_address) (void(0))
    #define STACK_REALLOC_ADDRESS(stack_address) (void(0))
    #define DUMP_NOT_CORRECT_STACK(stack_address) (void(0))
-#endif // MOD_START == 1
-
-// const work_mode MOD_START = DEBUG;
-const int AMOUNT_PRINT_ELEMENT = 10;
+#endif // MOD_START == DEBUG
 
 
 enum stack_error_t{

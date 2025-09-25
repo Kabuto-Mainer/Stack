@@ -20,7 +20,6 @@ stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity
 //     printf("Line - %d\n", line);
 //     printf("Name - %s\n", stack_name);
 
-
     if (MOD_START == DEBUG && start_capacity == 0) {
         printf("%sWARNING!!! Start capacity = 0%s\n", _P_, _N_);
     }
@@ -28,10 +27,6 @@ stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity
     int* buffer_address = (int*) calloc(start_capacity, sizeof(int));
 
     STACK_STR_ADDRESS_CHECK(stack_address);
-//     if (buffer_address == NULL) {
-//         stack_address->inf_adr_error.current_error = BAD_CREATE_CALLOC;
-//         ERROR_FUNC_RETURN(stack_address);
-//     }
 
     stack_address->data = buffer_address;
     stack_address->capacity = start_capacity;
@@ -42,13 +37,6 @@ stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity
     }
 
     STACK_STR_INF(stack_address);
-//     stack_address->inf_adr_location.name_stack = stack_name;
-//     stack_address->inf_adr_location.creation_file = file_name;
-//     stack_address->inf_adr_location.creation_line = line;
-//
-//     stack_address->inf_adr_error.current_error = NOT_ERRORS;
-//     stack_address->inf_adr_error.error_file = NULL;
-//     stack_address->inf_adr_error.error_line = NULL;
 
     return NOT_ERRORS;
 }
@@ -66,21 +54,12 @@ stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push) {
     assert(stack_address);
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-
     STACK_PUSH_CHECK(stack_address);
-    // if (stack_address->capacity <= stack_address->size) {
-    //     stack_address->inf_adr_error.current_error = BAD_PUSH_SIZE;
-    //     ERROR_FUNC_RETURN(stack_address); // Вызывает return
-    // }
 
     stack_address->data[stack_address->size++] = mean_to_push;
 
-    // printf("Do stack_push\n");
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-    // if (stack_error(stack_address) != 0) {
-    //     ERROR_FUNC_RETURN(stack_address); // Вызывает return
-    // }
 
     return NOT_ERRORS;
 }
@@ -91,29 +70,18 @@ stack_error_t stack_pop(stack_struct* stack_address, int* mean_pop_address) {
     assert(mean_pop_address);
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-    // if (stack_error(stack_address) != 0) {
-    //     ERROR_FUNC_RETURN(stack_address); // Вызывает return
-    // }
-
     STACK_POP_CHECK(stack_address);
-//     if (stack_address->size < 1) {
-//         stack_address->inf_adr_error.current_error = BAD_POP_SIZE;
-//         ERROR_FUNC_RETURN(stack_address);
-//     }
 
     *mean_pop_address = stack_address->data[--(stack_address->size)];
     // stack_address->data[stack_address->size + 1] = POISON_NUM;
 
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-    // if (stack_error(stack_address) != 0) {
-    //     ERROR_FUNC_RETURN(stack_address); // Вызывает return
-    // }
 
     return NOT_ERRORS;
 }
 
-#if MOD_START == 1
+#if MOD_START == DEBUG
 int stack_error(stack_struct* stack_address) {
     // Нужно возвращать int для передачи не одной ошибки, а нескольких
 
@@ -130,7 +98,7 @@ int stack_error(stack_struct* stack_address) {
     }
 
     if (stack_address->capacity < 1 &&
-    return_error & BAD_DATA_ADDRESS == BAD_DATA_ADDRESS) {
+    (return_error & BAD_DATA_ADDRESS) == BAD_DATA_ADDRESS) {
         return_error |= BAD_CAPACITY; // 4
     }
 
@@ -152,7 +120,7 @@ int stack_error(stack_struct* stack_address) {
 int stack_error(stack_struct* stack_address) {
     printf("ERROR ith stack_error in USER_MODE\n");
 }
-#endif // MOD_START == 1
+#endif // MOD_START == DEBUG
 
 
 
@@ -161,30 +129,18 @@ stack_error_t stack_realloc(stack_struct* stack_address,
     assert(stack_address);
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-    // if (stack_error(stack_address) != 0) {
-    //     ERROR_FUNC_RETURN(stack_address);
-    // }
-
     STACK_REALLOC_SIZE(stack_address);
-    // if (stack_address->size > size_of_stack) { // Тут мы допускаем полное заполнение data, так, что size указывает не на элемент массива
-    //     stack_address->inf_adr_error.current_error = BAD_REALLOC;
-    //     ERROR_FUNC_RETURN(stack_address);
-    // }
 
     int* buffer_address = (int*) realloc(stack_address->data, size_of_stack * sizeof(int));
 
     STACK_REALLOC_ADDRESS(stack_address);
-    // if (buffer_address == NULL) {
-    //     stack_address->inf_adr_error.current_error = LOSE_MEANS;
-    //     ERROR_FUNC_RETURN(stack_address);
-    // }
 
     stack_address->data = buffer_address;
 
     return NOT_ERRORS;
 }
 
-#if MOD_START == 1
+#if MOD_START == DEBUG
 int stack_dump(stack_struct* stack_address) {
     assert(stack_address);
 
@@ -253,11 +209,11 @@ int stack_dump(stack_struct* stack_address) {
     printf("ERROR with dump in USER_MOD\n");
 }
 
-#endif //MOS_START == 1
+#endif //MOS_START == DEBUG
 
 
 
-#if MOD_START == 1
+#if MOD_START == DEBUG
 void print_errors_for_dump(const int error_with_stack){
     int buffer = 0;
     for (int i = 1; i < MUST_STOP; i <<= 1) {
@@ -272,21 +228,5 @@ void print_errors_for_dump(const int error_with_stack){
 void print_errors_for_dump(const int error_with_stack) {
     printf("ERROR with print_errors_for_dump in USER_MOD\n");
 }
-#endif // MOD_START == 1
-// void print_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif // MOD_START == DEBUG
 
