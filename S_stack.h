@@ -79,7 +79,7 @@ struct stack_struct{
     }\
    }
 
-   #else
+   #else // NOT_AUTO_REALLOC
    #define STACK_PUSH_CHECK(stack_address) { \
     if ((stack_address)->capacity <= stack_address->size) { \
        (stack_address)->inf_adr_error.current_error = BAD_PUSH_SIZE; \
@@ -175,6 +175,8 @@ int stack_error(stack_struct* stack_address);
 int stack_dump(stack_struct* stack_address);
 
 void print_errors_for_dump(const int error_with_stack);
+
+void print_error(const int error_with_stack);
 
 
 stack_error_t stack_pop(stack_struct* stack_address, int* mean_pop_address);
