@@ -19,7 +19,7 @@ const stmn_t MIN_MEAN = 1e-8;
 const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
 const int MIN_ADDRESS = 8000;
 const int AMOUNT_PRINT_ELEMENT = 10;
-const int REALLOC_ADD_SIZE = 2;
+const int MODIFICATOR_REALLOC = 2;
 
 
 #define USER_MOD 0
@@ -96,7 +96,7 @@ struct stack_struct{
    #if REALLOC_TYPE == AUTO_REALLOC
    #define STACK_PUSH_CHECK(stack_address) { \
     if ((stack_address)->capacity <= stack_address->size) { \
-       stack_realloc(stack_address, stack_address->capacity + REALLOC_ADD_SIZE); \
+       stack_realloc(stack_address); \
     }\
    }
 
@@ -125,12 +125,12 @@ struct stack_struct{
     } \
    }
 
-   #define STACK_REALLOC_SIZE(stack_address) { \
-    if ((stack_address)->size > size_of_stack) { \
-       (stack_address)->inf_adr_error.current_error = BAD_REALLOC; \
-       ERROR_FUNC_RETURN(stack_address); \
-    } \
-   }
+   // #define STACK_REALLOC_SIZE(stack_address) { \
+   //  if ((stack_address)->size > ) { \
+   //     (stack_address)->inf_adr_error.current_error = BAD_REALLOC; \
+   //     ERROR_FUNC_RETURN(stack_address); \
+   //  } \
+   // }
 
    #define STACK_REALLOC_ADDRESS(stack_address, buffer_address){ \
     if (buffer_address == NULL) { \
@@ -223,8 +223,7 @@ stack_error_t stack_push(stack_struct* stack_address, const stmn_t mean_to_push)
 stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacity,
                         char* file_name, const int line_number, char* stack_name);
 
-stack_error_t stack_realloc(stack_struct* stack_address,
-                            const ssize_t size_of_stack);
+stack_error_t stack_realloc(stack_struct* stack_address);
 
 int stack_destruct(stack_struct* stack_address);
 

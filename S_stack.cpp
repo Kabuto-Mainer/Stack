@@ -138,18 +138,18 @@ int stack_error(stack_struct* stack_address) {
 
 
 
-stack_error_t stack_realloc(stack_struct* stack_address,
-                            const ssize_t size_of_stack) {
+stack_error_t stack_realloc(stack_struct* stack_address) {
     assert(stack_address);
 
     DUMP_NOT_CORRECT_STACK(stack_address);
-    STACK_REALLOC_SIZE(stack_address);
+    // STACK_REALLOC_SIZE(stack_address);
 
-    stmn_t* buffer_address = (stmn_t*) realloc(stack_address->data, size_of_stack * sizeof(stmn_t));
+    stmn_t* buffer_address = (stmn_t*) realloc(stack_address->data,
+                                            stack_address->capacity * MODIFICATOR_REALLOC * sizeof(stmn_t));
 
     STACK_REALLOC_ADDRESS(stack_address, buffer_address);
 
-    stack_address->capacity = size_of_stack;
+    stack_address->capacity *= MODIFICATOR_REALLOC;
     stack_address->data = buffer_address;
 
     return NOT_ERRORS;
