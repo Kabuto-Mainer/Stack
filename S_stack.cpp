@@ -9,7 +9,7 @@
 
 
 
-stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity,
+stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacity,
                         char* file_name, int line, char* stack_name) {
     assert(stack_address);
     assert(file_name);
@@ -24,19 +24,25 @@ stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity
         printf("%sWARNING!!! Start capacity = 0%s\n", _P_, _N_);
     }
 
-    int* buffer_address = (int*) calloc(start_capacity, sizeof(int));
-
-    STACK_STR_ADDRESS_CHECK(stack_address);
-
-    stack_address->data = buffer_address;
     stack_address->capacity = start_capacity;
     stack_address->size = 0;
+
+    STACK_STR_INF(stack_address);
+    STACK_STR_CAPACITY_CHECK(stack_address, start_capacity);
+    // printf("%zu\n", start_capacity);
+    int* buffer_address = (int*) calloc(start_capacity, sizeof(int));
+
+    STACK_STR_ADDRESS_CHECK(stack_address, buffer_address);
+
+    stack_address->data = buffer_address;
+    // stack_address->capacity = start_capacity;
+    // stack_address->size = 0;
 
     for (size_t i = 0; i < start_capacity; i++) {
         buffer_address[i] = POISON_NUM;
     }
 
-    STACK_STR_INF(stack_address);
+    // STACK_STR_INF(stack_address);
 
     return NOT_ERRORS;
 }
@@ -53,8 +59,10 @@ int stack_destruct(stack_struct* stack_address) {
 stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push) {
     assert(stack_address);
 
+    // printf("%d\n", mean_to_push);
     DUMP_NOT_CORRECT_STACK(stack_address);
     STACK_PUSH_CHECK(stack_address);
+    STACK_PUSH_NUM_CHECK(stack_address, mean_to_push);
 
     stack_address->data[stack_address->size++] = mean_to_push;
 
@@ -118,7 +126,7 @@ int stack_error(stack_struct* stack_address) {
 
 #else
 int stack_error(stack_struct* stack_address) {
-    printf("ERROR ith stack_error in USER_MODE\n");
+    printf("ERROR with stack_error in USER_MODE\n");
     return 0;
 }
 #endif // MOD_START == DEBUG
@@ -126,7 +134,7 @@ int stack_error(stack_struct* stack_address) {
 
 
 stack_error_t stack_realloc(stack_struct* stack_address,
-                            const size_t size_of_stack) {
+                            const ssize_t size_of_stack) {
     assert(stack_address);
 
     DUMP_NOT_CORRECT_STACK(stack_address);
@@ -134,7 +142,7 @@ stack_error_t stack_realloc(stack_struct* stack_address,
 
     int* buffer_address = (int*) realloc(stack_address->data, size_of_stack * sizeof(int));
 
-    STACK_REALLOC_ADDRESS(stack_address);
+    STACK_REALLOC_ADDRESS(stack_address, buffer_address);
 
     stack_address->capacity = size_of_stack;
     stack_address->data = buffer_address;
@@ -163,7 +171,8 @@ int stack_dump(stack_struct* stack_address) {
 
     if ((error_with_stack & BAD_CREATE_CALLOC) == BAD_CREATE_CALLOC ||
         (error_with_stack & BAD_DATA_ADDRESS) == (BAD_DATA_ADDRESS) ||
-        (error_with_stack & BAD_REALLOC) == BAD_REALLOC) {
+        (error_with_stack & BAD_REALLOC) == BAD_REALLOC ||
+        stack_address->size < 1) {
         printf("%s===============================================================================\n%s",_P_, _N_);
         return 0;
     }
@@ -175,7 +184,7 @@ int stack_dump(stack_struct* stack_address) {
     printf("data %s[%p]%s\n", _B_, stack_address->data, _P_);
 
     printf("    {\n");
-    for (int i = 0; i < AMOUNT_PRINT_ELEMENT; i++) {
+    for (int i = 0; i < MIN_INT(stack_address->size, AMOUNT_PRINT_ELEMENT); i++) {
         printf("   ");
 
         if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i < stack_address->size) {
@@ -242,7 +251,7 @@ void print_error(const int error_with_stack) {
 
     if ((error_with_stack & BAD_POP_SIZE) == BAD_POP_SIZE) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[7]);
-        printf("Pop < 1\n%s\n", _N_);
+        printf("Call Pop When Size == 0\n%s\n", _N_);
     }
 
     if ((error_with_stack & BAD_REALLOC) == BAD_REALLOC) {
@@ -258,6 +267,11 @@ void print_error(const int error_with_stack) {
     if ((error_with_stack & BAD_CREATE_CALLOC) == BAD_CREATE_CALLOC) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[10]);
         printf("Calloc Return Null\n%s\n", _N_);
+    }
+
+    if ((error_with_stack & PUSH_MEAN_WITHOUT_LIMIT) == PUSH_MEAN_WITHOUT_LIMIT) {
+        printf(_R_ "-- %s ---\n", ALL_ERRORS[11]);
+        printf("Push Mean > %d or < %d\n%s\n", MAX_MEAN, MIN_MEAN, _N_);
     }
 }
 
@@ -295,12 +309,4 @@ void print_errors_for_dump(const int error_with_stack) {
     printf("ERROR with print_errors_for_dump in USER_MOD\n");
 }
 #endif // MOD_START == DEBUG
-
-
-
-
-
-
-
-
 

@@ -3,9 +3,12 @@
 #include <stdio.h>
 
 //TODO Undef all name
+//TODO Check size and capacity < MAX
 
 const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
 const int MIN_ADDRESS = 8000;
+const int MAX_MEAN = 1e8;
+const int MIN_MEAN = 1e-8;
 const int AMOUNT_PRINT_ELEMENT = 10;
 const int REALLOC_ADD_SIZE = 2;
 
@@ -65,7 +68,15 @@ struct stack_struct{
     (stack_address)->inf_adr_error.error_line = NULL; \
    }
 
-   #define STACK_STR_ADDRESS_CHECK(stack_address) { \
+   #define STACK_STR_CAPACITY_CHECK(stack_address, start_capacity) { \
+    if (start_capacity < 0) { \
+        stack_address->inf_adr_error.current_error = BAD_CAPACITY; \
+        stack_address->capacity = start_capacity; \
+        ERROR_FUNC_RETURN(stack_address); \
+    } \
+   }
+
+   #define STACK_STR_ADDRESS_CHECK(stack_address, buffer_address) { \
     if (buffer_address == NULL) { \
        (stack_address)->inf_adr_error.current_error = BAD_CREATE_CALLOC; \
        ERROR_FUNC_RETURN(stack_address); \
@@ -89,6 +100,14 @@ struct stack_struct{
 
    #endif // REALLOC_TYPE == AUTO_REALLOC
 
+   #define STACK_PUSH_NUM_CHECK(stack_address, push_mean) { \
+      if (push_mean > MAX_MEAN || push_mean < MIN_MEAN) { \
+         stack_address->inf_adr_error.current_error = PUSH_MEAN_WITHOUT_LIMIT; \
+         ERROR_FUNC_RETURN(stack_address); \
+      } \
+   }
+
+
    #define STACK_POP_CHECK(stack_address) { \
     if ((stack_address)->size < 1) { \
        (stack_address)->inf_adr_error.current_error = BAD_POP_SIZE; \
@@ -103,7 +122,7 @@ struct stack_struct{
     } \
    }
 
-   #define STACK_REALLOC_ADDRESS(stack_address){ \
+   #define STACK_REALLOC_ADDRESS(stack_address, buffer_address){ \
     if (buffer_address == NULL) { \
        (stack_address)->inf_adr_error.current_error = LOSE_MEANS; \
        ERROR_FUNC_RETURN(stack_address); \
@@ -128,14 +147,17 @@ struct stack_struct{
    // location_inf inf_adr_location;
 };
    #define ERROR_FUNC_RETURN(stack_address) (void(0))
+   #define STACK_STR_CAPACITY_CHECK(stack_addres, start_capacity) (void(0))
    #define STACK_STR_INF(stack_address) (void(0))
-   #define STACK_STR_ADDRESS_CHECK(stack_address) (void(0))
+   #define STACK_STR_ADDRESS_CHECK(stack_address, buffer_address) (void(0))
    #define STACK_PUSH_CHECK(stack_address) (void(0))
    #define STACK_POP_CHECK(stack_address) (void(0))
    #define STACK_REALLOC_SIZE(stack_address) (void(0))
-   #define STACK_REALLOC_ADDRESS(stack_address) (void(0))
+   #define STACK_REALLOC_ADDRESS(stack_address, buffer_address) (void(0))
    #define DUMP_NOT_CORRECT_STACK(stack_address) (void(0))
 #endif // MOD_START == DEBUG
+
+#define MIN_INT(size, amount_elements) (size < amount_elements ? size : amount_elements)
 
 
 enum stack_error_t{
@@ -151,7 +173,8 @@ enum stack_error_t{
     BAD_REALLOC = 256,
     LOSE_MEANS = 512,
     BAD_CREATE_CALLOC = 1024,
-    MUST_STOP = 2048
+    PUSH_MEAN_WITHOUT_LIMIT = 2048,
+    MUST_STOP = 4096
 };
 
 
@@ -163,10 +186,11 @@ const char ALL_ERRORS[20][40] = {"BAD_DATA_ADDRESS",
                                 "BAD_PUSH_SIZE",
                                 "BAD_PUSH_MEAN",
                                 "BAD_POP_SIZE",
-                                "MUST_STOP",
                                 "BAD_REALLOC",
                                 "LOSE_MEANS",
-                                "BAD_CREATE_CALLOC"
+                                "BAD_CREATE_CALLOC",
+                                "PUSH_MEAN_WITHOUT_LIMIT",
+                                "MUST_STOP"
 };
 
 
@@ -184,12 +208,11 @@ stack_error_t stack_pop(stack_struct* stack_address, int* mean_pop_address);
 stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push);
 
 
-
-stack_error_t stack_stk(stack_struct* stack_address, const size_t start_capacity,
+stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacity,
                         char* file_name, const int line_number, char* stack_name);
 
 stack_error_t stack_realloc(stack_struct* stack_address,
-                            const size_t size_of_stack);
+                            const ssize_t size_of_stack);
 
 int stack_destruct(stack_struct* stack_address);
 
