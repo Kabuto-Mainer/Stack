@@ -11,9 +11,14 @@
 
 stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacity,
                         char* file_name, int line, char* stack_name) {
-    assert(stack_address);
+    // assert(stack_address);
     assert(file_name);
     assert(stack_name);
+
+    if (file_name == NULL) {
+        printf("NULL ADDRESS: %s:%d  Name: %s\n", file_name, line, stack_name);
+        return MUST_STOP;
+    }
 //
 //     printf("Capacity - %d\n", start_capacity);
 //     printf("File - %s\n", file_name);
@@ -30,7 +35,7 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
     STACK_STR_INF(stack_address);
     STACK_STR_CAPACITY_CHECK(stack_address, start_capacity);
     // printf("%zu\n", start_capacity);
-    int* buffer_address = (int*) calloc(start_capacity, sizeof(int));
+    stmn_t* buffer_address = (stmn_t*) calloc(start_capacity, sizeof(stmn_t));
 
     STACK_STR_ADDRESS_CHECK(stack_address, buffer_address);
 
@@ -56,7 +61,7 @@ int stack_destruct(stack_struct* stack_address) {
 }
 
 
-stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push) {
+stack_error_t stack_push(stack_struct* stack_address, const stmn_t mean_to_push) {
     assert(stack_address);
 
     // printf("%d\n", mean_to_push);
@@ -73,7 +78,7 @@ stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push) {
 }
 
 
-stack_error_t stack_pop(stack_struct* stack_address, int* mean_pop_address) {
+stack_error_t stack_pop(stack_struct* stack_address, stmn_t* mean_pop_address) {
     assert(stack_address);
     assert(mean_pop_address);
 
@@ -97,7 +102,7 @@ int stack_error(stack_struct* stack_address) {
 
     int return_error = 0;
 
-    if (stack_address->data < (int*) MIN_ADDRESS && stack_address->capacity != 0) {
+    if (stack_address->data < (stmn_t*) MIN_ADDRESS && stack_address->capacity != 0) {
         return_error |= BAD_DATA_ADDRESS; // 1
     }
 
@@ -140,7 +145,7 @@ stack_error_t stack_realloc(stack_struct* stack_address,
     DUMP_NOT_CORRECT_STACK(stack_address);
     STACK_REALLOC_SIZE(stack_address);
 
-    int* buffer_address = (int*) realloc(stack_address->data, size_of_stack * sizeof(int));
+    stmn_t* buffer_address = (stmn_t*) realloc(stack_address->data, size_of_stack * sizeof(stmn_t));
 
     STACK_REALLOC_ADDRESS(stack_address, buffer_address);
 
@@ -158,8 +163,8 @@ int stack_dump(stack_struct* stack_address) {
 
     printf("\n%s===============================================================================\n", _R_);
     printf("--- STACK DUMP ---%s\n", _N_);
-    printf("%sstack %s<int> [%p]%s from %s%s:%d %sname stack:%s %s%s \nERRORS: \n",
-            _P_,   _B_, stack_address, _R_, _B_,
+    printf("%sstack %s<%s> [%p]%s from %s%s:%d %sname stack:%s %s%s \nERRORS: \n",
+            _P_,   _B_, name_type, stack_address, _R_, _B_,
             stack_address->inf_adr_location.creation_file,
             stack_address->inf_adr_location.creation_line, _P_, _B_,
             stack_address->inf_adr_location.name_stack, _R_);
@@ -184,18 +189,21 @@ int stack_dump(stack_struct* stack_address) {
     printf("data %s[%p]%s\n", _B_, stack_address->data, _P_);
 
     printf("    {\n");
-    for (int i = 0; i < MIN_INT(stack_address->size, AMOUNT_PRINT_ELEMENT); i++) {
-        printf("   ");
 
-        if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i < stack_address->size) {
-            printf("*");
-        }
-        else {
-            printf(" ");
-        }
-
-        printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_);
-    }
+    print_stack_for_dump(stack_address, error_with_stack);
+//     for (int i = 0; i < MIN_INT(stack_address->size, AMOUNT_PRINT_ELEMENT); i++) {
+//         printf("   ");
+//
+//         if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i < stack_address->size) {
+//             printf("*");
+//         }
+//         else {
+//             printf(" ");
+//         }
+//
+//         // printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_); //TODO
+//         printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_);
+//     }
     printf("    }\n");
     printf("}\n");
     printf("%s===============================================================================\n%s",_P_, _N_);
@@ -271,7 +279,7 @@ void print_error(const int error_with_stack) {
 
     if ((error_with_stack & PUSH_MEAN_WITHOUT_LIMIT) == PUSH_MEAN_WITHOUT_LIMIT) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[11]);
-        printf("Push Mean > %d or < %d\n%s\n", MAX_MEAN, MIN_MEAN, _N_);
+        printf("Push Mean > %ld or < %ld\n%s\n", MAX_MEAN, MIN_MEAN, _N_);
     }
 }
 
@@ -299,14 +307,19 @@ void print_stack_for_dump(stack_struct* stack_address, const int error_with_stac
         else {
             printf(" ");
         }
-
-        printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_);
+        printf("%d = %s", i, _B_);
+        PRINT_ELEMENT(stack_address, i);
+        printf("%s\n", _P_);
     }
 }
 
 #else
 void print_errors_for_dump(const int error_with_stack) {
-    printf("ERROR with print_errors_for_dump in USER_MOD\n");
+    printf("ERROR with print_errors_for_dump in USER_MODE\n");
+}
+
+void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
+    printf("ERROR with print_stack_for_dump in USER_MODE\n");
 }
 #endif // MOD_START == DEBUG
 

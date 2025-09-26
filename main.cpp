@@ -14,7 +14,7 @@ int main() {
     // stack_dump(&stack_for_test);
 
     stack_push(&stack_for_test, 1e9);
-    int buffer_place = 0;
+    stmn_t buffer_place = 0;
     stack_pop(&stack_for_test, &buffer_place);
     stack_pop(&stack_for_test, &buffer_place);
 

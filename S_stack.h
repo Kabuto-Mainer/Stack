@@ -5,12 +5,22 @@
 //TODO Undef all name
 //TODO Check size and capacity < MAX
 
+typedef ssize_t stmn_t;
+const char name_type[] = "ssize_t";
+//! При смене типа меняем спецификатор ввода
+#define PRINT_ELEMENT(stack_address, i) { \
+   printf("%zd", stack_address->data[i]); \
+}
+
+const stmn_t MAX_MEAN = 1e8;
+const stmn_t MIN_MEAN = 1e-8;
+
+
 const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
 const int MIN_ADDRESS = 8000;
-const int MAX_MEAN = 1e8;
-const int MIN_MEAN = 1e-8;
 const int AMOUNT_PRINT_ELEMENT = 10;
 const int REALLOC_ADD_SIZE = 2;
+
 
 #define USER_MOD 0
 #define DEBUG 1
@@ -44,7 +54,7 @@ struct location_inf{
     location_inf inf_adr_location;
 
 struct stack_struct{
-   int* data;
+   stmn_t* data;
    ssize_t size;
    ssize_t capacity;
 
@@ -138,7 +148,7 @@ struct stack_struct{
 #else
 
 struct stack_struct{
-   int* data;
+   stmn_t* data;
    ssize_t size;
    ssize_t capacity;
 
@@ -202,10 +212,12 @@ void print_errors_for_dump(const int error_with_stack);
 
 void print_error(const int error_with_stack);
 
+void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack);
 
-stack_error_t stack_pop(stack_struct* stack_address, int* mean_pop_address);
 
-stack_error_t stack_push(stack_struct* stack_address, const int mean_to_push);
+stack_error_t stack_pop(stack_struct* stack_address, stmn_t* mean_pop_address);
+
+stack_error_t stack_push(stack_struct* stack_address, const stmn_t mean_to_push);
 
 
 stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacity,
