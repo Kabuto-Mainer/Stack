@@ -5,18 +5,21 @@
 //TODO Undef all name
 //TODO Check size and capacity < MAX
 
-typedef ssize_t stmn_t;
-const char name_type[] = "ssize_t";
+typedef long long int stmn_t;
+const char name_type[] = "long long int";
 //! При смене типа меняем спецификатор ввода
-#define PRINT_ELEMENT(stack_address, i) { \
-   printf("%zd", stack_address->data[i]); \
+#define PRINT_ELEMENT(num) { \
+   printf("%lld", num); \
 }
 
 const stmn_t MAX_MEAN = 1e8;
-const stmn_t MIN_MEAN = 1e-8;
+const stmn_t MIN_MEAN = -1e8;
 
 
-const int POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
+const stmn_t POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
+const stmn_t BIRD_NUM = 0; //* Чисто для теста
+const int SIZE_ADD_CAPACITY = 0;
+
 const int MIN_ADDRESS = 8000;
 const int AMOUNT_PRINT_ELEMENT = 10;
 const int MODIFICATOR_REALLOC = 2;
@@ -28,8 +31,9 @@ const int MODIFICATOR_REALLOC = 2;
 #define NOT_AUTO_REALLOC 1
 
 
-#define MOD_START DEBUG
-#define REALLOC_TYPE AUTO_REALLOC
+#define MOD_START USER_MOD
+#define REALLOC_TYPE NOT_AUTO_REALLOC
+#define COMPLETION_DATA 0
 
 
 #define STRUCT_INFORMATION
@@ -119,7 +123,7 @@ struct stack_struct{
 
 
    #define STACK_POP_CHECK(stack_address) { \
-    if ((stack_address)->size < 1) { \
+    if ((stack_address)->size < 1 + SIZE_ADD_CAPACITY) { \
        (stack_address)->inf_adr_error.current_error = BAD_POP_SIZE; \
        ERROR_FUNC_RETURN(stack_address); \
     } \
@@ -161,6 +165,7 @@ struct stack_struct{
    #define STACK_STR_INF(stack_address) (void(0))
    #define STACK_STR_ADDRESS_CHECK(stack_address, buffer_address) (void(0))
    #define STACK_PUSH_CHECK(stack_address) (void(0))
+   #define STACK_PUSH_NUM_CHECK(stack_address, mean_to_push) (void(0))
    #define STACK_POP_CHECK(stack_address) (void(0))
    #define STACK_REALLOC_SIZE(stack_address) (void(0))
    #define STACK_REALLOC_ADDRESS(stack_address, buffer_address) (void(0))
@@ -184,7 +189,8 @@ enum stack_error_t{
     LOSE_MEANS = 512,
     BAD_CREATE_CALLOC = 1024,
     PUSH_MEAN_WITHOUT_LIMIT = 2048,
-    MUST_STOP = 4096
+    BIRD_NOT_CORRECT = 4096,
+    MUST_STOP = 8192
 };
 
 
@@ -200,6 +206,7 @@ const char ALL_ERRORS[20][40] = {"BAD_DATA_ADDRESS",
                                 "LOSE_MEANS",
                                 "BAD_CREATE_CALLOC",
                                 "PUSH_MEAN_WITHOUT_LIMIT",
+                                "BIRD_NOT_CORRECT",
                                 "MUST_STOP"
 };
 

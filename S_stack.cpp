@@ -19,11 +19,6 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
         printf("NULL ADDRESS: %s:%d  Name: %s\n", file_name, line, stack_name);
         return MUST_STOP;
     }
-//
-//     printf("Capacity - %d\n", start_capacity);
-//     printf("File - %s\n", file_name);
-//     printf("Line - %d\n", line);
-//     printf("Name - %s\n", stack_name);
 
     if (MOD_START == DEBUG && start_capacity == 0) {
         printf("%sWARNING!!! Start capacity = 0%s\n", _P_, _N_);
@@ -35,19 +30,24 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
     STACK_STR_INF(stack_address);
     STACK_STR_CAPACITY_CHECK(stack_address, start_capacity);
     // printf("%zu\n", start_capacity);
-    stmn_t* buffer_address = (stmn_t*) calloc(start_capacity, sizeof(stmn_t));
+    stmn_t* buffer_address = (stmn_t*) calloc(start_capacity + 2 * SIZE_ADD_CAPACITY, sizeof(stmn_t));
 
     STACK_STR_ADDRESS_CHECK(stack_address, buffer_address);
 
+    stack_address->size = SIZE_ADD_CAPACITY;
     stack_address->data = buffer_address;
     // stack_address->capacity = start_capacity;
     // stack_address->size = 0;
-
-    for (size_t i = 0; i < start_capacity; i++) {
+#if COMPLETION_DATA == 1
+    for (size_t i = SIZE_ADD_CAPACITY; i < start_capacity + SIZE_ADD_CAPACITY; i++) {
         buffer_address[i] = POISON_NUM;
     }
+#if SIZE_ADD_CAPACITY > 0
+    buffer_address[0] = BIRD_NUM;
+    buffer_address[start_capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
+#endif // SIZE_ADD_CAPACITY
 
-    // STACK_STR_INF(stack_address);
+#endif // COMPLETION_DATA
 
     return NOT_ERRORS;
 }
@@ -102,26 +102,31 @@ int stack_error(stack_struct* stack_address) {
 
     int return_error = 0;
 
-    if (stack_address->data < (stmn_t*) MIN_ADDRESS && stack_address->capacity != 0) {
+    if (stack_address->data < (stmn_t*) MIN_ADDRESS && stack_address->capacity != SIZE_ADD_CAPACITY) {
         return_error |= BAD_DATA_ADDRESS; // 1
     }
 
-    if (stack_address->size < 0) {
+    if (stack_address->size < SIZE_ADD_CAPACITY) {
         return_error |= BAD_SIZE; // 2
     }
 
-    if (stack_address->capacity < 1 &&
+    if (stack_address->capacity < 1 + SIZE_ADD_CAPACITY &&
     (return_error & BAD_DATA_ADDRESS) == BAD_DATA_ADDRESS) {
         return_error |= BAD_CAPACITY; // 4
     }
 
-    if (stack_address->size > 0 &&
+    if (stack_address->size > SIZE_ADD_CAPACITY &&
     stack_address->data[(stack_address->size) - 1] == POISON_NUM) { // Можем читать и при плохом адресе
         return_error |= BAD_CURRENT_ELEMENT; // 8             // Но не знаю, стоит ли
     }                                                         // Как вариант, добавить проверку на правильность адреса
 
     if (stack_address->size > stack_address->capacity) { // Даже если они разного знака, то это ошибка
         return_error |= SIZE_BIGGER_CAPACITY; // 16
+    }
+
+    if (SIZE_ADD_CAPACITY != 0 && (stack_address->data[0] != BIRD_NUM ||
+        stack_address->data[stack_address->capacity + SIZE_ADD_CAPACITY] != BIRD_NUM)) {
+        return_error |= BIRD_NOT_CORRECT; // 4096
     }
 
     stack_address->inf_adr_error.current_error = return_error;
@@ -216,7 +221,7 @@ int stack_dump(stack_struct* stack_address) {
     return 0;
 }
 
-printf(_R_ "-- %s ---\n", ALL_ERRORS[]);
+// printf(_R_ "-- %s ---\n", ALL_ERRORS[]);
 
 #endif //MOS_START == DEBUG
 
@@ -238,7 +243,9 @@ void print_error(const int error_with_stack) {
 
     if ((error_with_stack & BAD_CURRENT_ELEMENT) == BAD_CURRENT_ELEMENT) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[3]);
-        printf("Current Element Is Poison (%d)\n%s\n", POISON_NUM, _N_);
+        printf("Current Element Is Poison (");
+        PRINT_ELEMENT(POISON_NUM);
+        printf(")\n%s\n", _N_);
     }
 
     if ((error_with_stack & SIZE_BIGGER_CAPACITY) == SIZE_BIGGER_CAPACITY) {
@@ -254,7 +261,9 @@ void print_error(const int error_with_stack) {
 
     if ((error_with_stack & BAD_PUSH_MEAN) == BAD_PUSH_MEAN) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[6]);
-        printf("Push Element == Poison (%d) \n%s\n", POISON_NUM, _N_);
+        printf("Push Element == Poison (");
+        PRINT_ELEMENT(POISON_NUM);
+        printf(")\n%s\n", _N_);
     }
 
     if ((error_with_stack & BAD_POP_SIZE) == BAD_POP_SIZE) {
@@ -279,7 +288,12 @@ void print_error(const int error_with_stack) {
 
     if ((error_with_stack & PUSH_MEAN_WITHOUT_LIMIT) == PUSH_MEAN_WITHOUT_LIMIT) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[11]);
-        printf("Push Mean > %ld or < %ld\n%s\n", MAX_MEAN, MIN_MEAN, _N_);
+        printf("Push Mean > %lld or < %lld\n%s\n", MAX_MEAN, MIN_MEAN, _N_);
+    }
+
+    if ((error_with_stack & BIRD_NOT_CORRECT) == BIRD_NOT_CORRECT) {
+        printf(_R_ "-- %s ---\n", ALL_ERRORS[12]);
+        printf("Bird Num Was Changed\n%s\n", _N_);
     }
 }
 
@@ -298,17 +312,17 @@ void print_errors_for_dump(const int error_with_stack){
 }
 
 void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
-    for (int i = 0; i < AMOUNT_PRINT_ELEMENT; i++) {
+    for (int i = 0; i < MIN_INT(stack_address->size + SIZE_ADD_CAPACITY * 2, AMOUNT_PRINT_ELEMENT); i++) {
         printf("   ");
 
-        if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i < stack_address->size) {
+        if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i <= stack_address->size && i != 0) {
             printf("*");
         }
         else {
             printf(" ");
         }
         printf("%d = %s", i, _B_);
-        PRINT_ELEMENT(stack_address, i);
+        PRINT_ELEMENT((stack_address->data)[i]);
         printf("%s\n", _P_);
     }
 }

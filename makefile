@@ -4,7 +4,7 @@ flags = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop
 
 
 
-S_stack.o: S_stack.cpp
+S_stack.o: S_stack.cpp S_stack.h
 	@(g++ -c S_stack.cpp $(flags))
 	@echo --- Compilation S_stack.cpp to S_stack.o finished successfully ---
 
@@ -12,8 +12,17 @@ main.o: main.cpp
 	@(g++ -c main.cpp $(flags))
 	@echo --- Compilation main.cpp to main.o finished successfully---
 
-build: S_stack.o main.o
-	@(g++ S_stack.o main.o $(flags) -o main.exe)
+C_calc.o: C_calc.cpp C_calc.h
+	@(g++ -c C_calc.cpp $(flags))
+	@echo --- Compilation C_calc.cpp to main.o finished successfully---
+
+support.o: support.cpp support.h
+	@(g++ -c support.cpp $(flags))
+	@echo --- Compilation support.cpp to main.o finished successfully---
+
+
+build: S_stack.o main.o C_calc.o support.o
+	@(g++ S_stack.o main.o C_calc.o support.o $(flags) -o main.exe)
 	@echo --- Build main.exe finished successfully ---
 
 run:
@@ -26,7 +35,7 @@ clean:
 	@echo -- All .o file have been deleted ---
 
 gitcom:
-	@(git add makefile color.h main.cpp main.exe S_stack.cpp S_stack.h)
+	@(git add makefile color.h main.cpp main.exe S_stack.cpp S_stack.h C_calc.cpp C_calc.h test_proccec.txt)
 	@echo -- Add file to git commit ---
 	@(git commit -m "$(m)")
 	@echo --- Git committing ---
