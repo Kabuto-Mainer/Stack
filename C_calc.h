@@ -1,6 +1,7 @@
 #ifndef C_CALC_H
 #define C_CALC_H
 
+#include "S_stack.h"
 //! При использовании изменить в S_stack.h:
 //!                   MOD_START = USER_MOD
 //!                   REALLOC_TYPE = NOT_AUTO_REALLOC
@@ -9,9 +10,9 @@
 //!                   stmn_t = long long int
 //! Это важно, т.к. при правильной компиляции program_file проверки не нужны и будут лишь мешать
 
-#define PRINT_MODE DEBUG
+#define PRINT_MODE ON
 
-#if PRINT_MODE == DEBUG
+#if PRINT_MODE == ON
 #define PRINT_ARGUMENT \
  printf("Arg_1 = %lld\n", argument_1); \
  printf("Arg_2 = %lld\n", argument_2);

@@ -43,7 +43,6 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
 
 #if COMPLETION_DATA == ON
     for (size_t i = SIZE_ADD_CAPACITY; i < start_capacity + SIZE_ADD_CAPACITY; i++) {
-        printf("---\n");
         buffer_address[i] = POISON_NUM;
     }
 
@@ -110,7 +109,7 @@ REPLACE_HASH_CODE(stack_address);
     return NOT_ERRORS;
 }
 
-#if MOD_START == DEBUG
+#if MOD_WORK == DEBUG
 int stack_error(stack_struct* stack_address) {
     // Нужно возвращать int для передачи не одной ошибки, а нескольких
 
@@ -160,7 +159,7 @@ int stack_error(stack_struct* stack_address) {
     printf("ERROR with stack_error in USER_MODE\n");
     return 0;
 }
-#endif // MOD_START == DEBUG
+#endif // MOD_WORK == DEBUG
 
 
 
@@ -369,7 +368,7 @@ void print_stack_for_dump(stack_struct* stack_address, const int error_with_stac
     printf("ERROR with print_stack_for_dump in USER_MODE\n");
 }
 
-#endif // MOD_START == DEBUG
+#endif // MOD_WORK == DEBUG
 
 ssize_t make_hash_code(stack_struct* stack_address) {
     assert(stack_address);

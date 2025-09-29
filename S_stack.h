@@ -8,8 +8,9 @@
 #define OFF 0
 #define ON 1
 
-
+#ifndef MOD_WORK
 #define MOD_WORK PROCESSOR
+#endif
 //! Выбор типа работы
 
 
@@ -24,15 +25,35 @@ const char name_type[] = "long long int";
 
 const int SIZE_ADD_CAPACITY = 1;
 
+#ifndef AUTO_REALLOC
 #define AUTO_REALLOC OFF
+#endif
+
+#ifndef COMPLETION_DATA
 #define COMPLETION_DATA OFF
+#endif
+
+#ifndef HASH_SECURE
 #define HASH_SECURE OFF
+#endif
+
+#ifndef BIRD_SECURE
+#define BIRD_SECURE OFF
+#endif
 
 #else
 
+#ifndef BIRD_SECURE
 #define BIRD_SECURE ON
+#endif
+
+#ifndef HASH_SECURE
 #define HASH_SECURE ON
+#endif
+
+#ifndef COMPLETION_DATA
 #define COMPLETION_DATA ON
+#endif
 
 
 //----------------------------------------------------
