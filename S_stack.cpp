@@ -20,7 +20,7 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
         return MUST_STOP;
     }
 
-    if (MOD_START == DEBUG && start_capacity == 0) {
+    if (MOD_WORK == DEBUG && start_capacity == 0) {
         printf("%sWARNING!!! Start capacity = 0%s\n", _P_, _N_);
     }
 
@@ -29,25 +29,34 @@ stack_error_t stack_stk(stack_struct* stack_address, const ssize_t start_capacit
 
     STACK_STR_INF(stack_address);
     STACK_STR_CAPACITY_CHECK(stack_address, start_capacity);
-    // printf("%zu\n", start_capacity);
+
+
     stmn_t* buffer_address = (stmn_t*) calloc(start_capacity + 2 * SIZE_ADD_CAPACITY, sizeof(stmn_t));
+
 
     STACK_STR_ADDRESS_CHECK(stack_address, buffer_address);
 
+    stack_address->capacity = start_capacity;
     stack_address->size = SIZE_ADD_CAPACITY;
     stack_address->data = buffer_address;
-    // stack_address->capacity = start_capacity;
-    // stack_address->size = 0;
-#if COMPLETION_DATA == 1
+
+
+#if COMPLETION_DATA == ON
     for (size_t i = SIZE_ADD_CAPACITY; i < start_capacity + SIZE_ADD_CAPACITY; i++) {
+        printf("---\n");
         buffer_address[i] = POISON_NUM;
     }
-#if SIZE_ADD_CAPACITY > 0
-    buffer_address[0] = BIRD_NUM;
-    buffer_address[start_capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
-#endif // SIZE_ADD_CAPACITY
 
+    if (SIZE_ADD_CAPACITY > 0) {
+        buffer_address[0] = BIRD_NUM;
+        buffer_address[start_capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
+    }
 #endif // COMPLETION_DATA
+
+#if HASH_SECURE == ON
+REPLACE_HASH_CODE(stack_address);
+#endif // HASH_SECURE == 1
+
 
     return NOT_ERRORS;
 }
@@ -71,6 +80,10 @@ stack_error_t stack_push(stack_struct* stack_address, const stmn_t mean_to_push)
 
     stack_address->data[stack_address->size++] = mean_to_push;
 
+#if HASH_SECURE == ON
+REPLACE_HASH_CODE(stack_address);
+
+#endif
 
     DUMP_NOT_CORRECT_STACK(stack_address);
 
@@ -86,8 +99,11 @@ stack_error_t stack_pop(stack_struct* stack_address, stmn_t* mean_pop_address) {
     STACK_POP_CHECK(stack_address);
 
     *mean_pop_address = stack_address->data[--(stack_address->size)];
-    // stack_address->data[stack_address->size + 1] = POISON_NUM;
 
+#if HASH_SECURE == 1
+REPLACE_HASH_CODE(stack_address);
+
+#endif
 
     DUMP_NOT_CORRECT_STACK(stack_address);
 
@@ -116,7 +132,7 @@ int stack_error(stack_struct* stack_address) {
     }
 
     if (stack_address->size > SIZE_ADD_CAPACITY &&
-    stack_address->data[(stack_address->size) - 1] == POISON_NUM) { // Можем читать и при плохом адресе
+    stack_address->data[(stack_address->size) - 1 - SIZE_ADD_CAPACITY] == POISON_NUM) { // Можем читать и при плохом адресе
         return_error |= BAD_CURRENT_ELEMENT; // 8             // Но не знаю, стоит ли
     }                                                         // Как вариант, добавить проверку на правильность адреса
 
@@ -129,8 +145,13 @@ int stack_error(stack_struct* stack_address) {
         return_error |= BIRD_NOT_CORRECT; // 4096
     }
 
-    stack_address->inf_adr_error.current_error = return_error;
+#if HASH_SECURE == ON
+CHECK_HASH_CODE(stack_address, return_error);
 
+#endif
+
+    // printf("code error = %d\n", return_error);
+    stack_address->inf_adr_error.current_error = return_error;
     return return_error;
 }
 
@@ -160,7 +181,7 @@ stack_error_t stack_realloc(stack_struct* stack_address) {
     return NOT_ERRORS;
 }
 
-#if MOD_START == DEBUG
+#if MOD_WORK == DEBUG
 int stack_dump(stack_struct* stack_address) {
     assert(stack_address);
 
@@ -178,6 +199,7 @@ int stack_dump(stack_struct* stack_address) {
     printf("In Function: %s:%d\n\n", stack_address->inf_adr_error.error_file,
                                   stack_address->inf_adr_error.error_line);
     print_error(error_with_stack);
+    // printf("ERROR_WITH_STACK = %d\n", error_with_stack);
 
     if ((error_with_stack & BAD_CREATE_CALLOC) == BAD_CREATE_CALLOC ||
         (error_with_stack & BAD_DATA_ADDRESS) == (BAD_DATA_ADDRESS) ||
@@ -193,22 +215,18 @@ int stack_dump(stack_struct* stack_address) {
     printf("capacity = %s%zd%s\n", _B_, stack_address->capacity, _P_);
     printf("data %s[%p]%s\n", _B_, stack_address->data, _P_);
 
+#if HASH_SECURE == 1
+
+printf("\n");
+printf("inital hash = %s%zd%s\n", _B_, stack_address->inf_hash_code.hash_code, _P_);
+printf("modified hash = %s%zd%s\n", _B_, make_hash_code(stack_address), _P_);
+
+#endif
+
     printf("    {\n");
 
     print_stack_for_dump(stack_address, error_with_stack);
-//     for (int i = 0; i < MIN_INT(stack_address->size, AMOUNT_PRINT_ELEMENT); i++) {
-//         printf("   ");
-//
-//         if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i < stack_address->size) {
-//             printf("*");
-//         }
-//         else {
-//             printf(" ");
-//         }
-//
-//         // printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_); //TODO
-//         printf("%d = %s%d%s\n", i, _B_, stack_address->data[i], _P_);
-//     }
+
     printf("    }\n");
     printf("}\n");
     printf("%s===============================================================================\n%s",_P_, _N_);
@@ -220,8 +238,6 @@ int stack_dump(stack_struct* stack_address) {
     printf("ERROR with dump in USER_MOD\n");
     return 0;
 }
-
-// printf(_R_ "-- %s ---\n", ALL_ERRORS[]);
 
 #endif //MOS_START == DEBUG
 
@@ -295,12 +311,17 @@ void print_error(const int error_with_stack) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[12]);
         printf("Bird Num Was Changed\n%s\n", _N_);
     }
+
+    if ((error_with_stack & BAD_HASH) == BAD_HASH) {
+        printf(_R_ "-- %s ---\n", ALL_ERRORS[13]);
+        printf("Not Coincidence Hash Code\n%s\n", _N_);
+    }
 }
 
 
 
 
-#if MOD_START == DEBUG
+#if MOD_WORK == DEBUG
 void print_errors_for_dump(const int error_with_stack){
     int buffer = 0;
     for (int i = 1; i < MUST_STOP; i <<= 1) {
@@ -312,7 +333,13 @@ void print_errors_for_dump(const int error_with_stack){
 }
 
 void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
-    for (int i = 0; i < MIN_INT(stack_address->size + SIZE_ADD_CAPACITY * 2, AMOUNT_PRINT_ELEMENT); i++) {
+    printf("    first bird = ");
+    PRINT_ELEMENT((stack_address->data)[0]);
+    printf(" (BIRD_NUM) (MUST BE ");
+    PRINT_ELEMENT(BIRD_NUM);
+    printf(")\n");
+
+    for (int i = 1; i < MIN_INT(stack_address->size + SIZE_ADD_CAPACITY * 2, AMOUNT_PRINT_ELEMENT); i++) {
         printf("   ");
 
         if ((error_with_stack & BAD_SIZE) != BAD_SIZE && i <= stack_address->size && i != 0) {
@@ -321,10 +348,16 @@ void print_stack_for_dump(stack_struct* stack_address, const int error_with_stac
         else {
             printf(" ");
         }
-        printf("%d = %s", i, _B_);
+        printf("%d = %s", i - 1, _B_);
         PRINT_ELEMENT((stack_address->data)[i]);
         printf("%s\n", _P_);
     }
+
+    printf("    second bird = ");
+    PRINT_ELEMENT((stack_address->data)[stack_address->capacity + 2 * SIZE_ADD_CAPACITY - 1]);
+    printf(" (BIRD_NUM) (MUST BE ");
+    PRINT_ELEMENT(BIRD_NUM);
+    printf(")\n");
 }
 
 #else
@@ -335,5 +368,25 @@ void print_errors_for_dump(const int error_with_stack) {
 void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
     printf("ERROR with print_stack_for_dump in USER_MODE\n");
 }
+
 #endif // MOD_START == DEBUG
+
+ssize_t make_hash_code(stack_struct* stack_address) {
+    assert(stack_address);
+
+    if (stack_address->capacity < 2 * SIZE_ADD_CAPACITY) {
+        return 0;
+    }
+
+    size_t current_hash = START_HASH_CODE;
+
+    for (size_t i = 0; i < stack_address->capacity - 1; i++) {
+        current_hash += (current_hash << 5) + stack_address->data[i]; // Я знаю, компилятор сам подставит это вместо простого умножения на 33, а таким способом уменьшается масштабируемость, но хотелось так сделать + надо начинать использовать побитовые операции
+    }
+
+    return current_hash;
+}
+
+
+
 

@@ -9,33 +9,29 @@
 int main() {
     FILE* file_address = fopen_file("test_proccec.txt", "r");
 
-    calc_program_file struct_file = {};
+    calc_program_file struct_file = {}; //! Тест процессорных функций
     my_compiler(file_address, &struct_file);
-
-    // printf("Amount Comands: %zu\n", struct_file.amount_comands);
-    // printf("Max Size: %zu\n", struct_file.max_size);
-    // printf("Amount Div: %d \n", struct_file.amount_div_result);
-
-    // free(struct_file.comands);
     run_program(&struct_file);
     printf("\n");
 
+    printf("Amount Comands: %zu\n", struct_file.amount_comands);
+    printf("Max Size: %zu\n", struct_file.max_size);
+    printf("Amount Div: %d \n", struct_file.amount_div_result);
 
 
-//     stack_struct stack_for_test = {};
-//     stack_stk(&stack_for_test, 1, __FILE__, __LINE__, NAME_RETURN(stack_for_test));
+
+    // stack_stk(&stack_for_test, 10, __FILE__, __LINE__, NAME_RETURN(stack_for_test));
+    // stack_push(&stack_for_test, 10); //! Тест хеша
+    // stack_push(&stack_for_test, 10);
+    // stack_push(&stack_for_test, 10);
+    // stack_push(&stack_for_test, 10);
+    // // printf("hash = %zd\n", stack_for_test.inf_hash_code.hash_code);
+    // stmn_t buffer_place = 0;
+    // stack_pop(&stack_for_test, &buffer_place);
+    // stack_for_test.data[1] = 3;
+    // stack_pop(&stack_for_test, &buffer_place);
 //
-//     // printf("Stack Error: %d\?n", stack_error(&stack_for_test));
-//
-//     // stack_for_test.inf_adr_error.current_error = 4097;
-//     stack_dump(&stack_for_test);
-//
-//     // stack_push(&stack_for_test, 1e9);
-//     // stmn_t buffer_place = 0;
-//     // stack_pop(&stack_for_test, &buffer_place);
-//     // stack_pop(&stack_for_test, &buffer_place);
-//
-//     stack_destruct(&stack_for_test);
+    // stack_destruct(&stack_for_test);
     return 0;
 }
 

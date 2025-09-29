@@ -2,41 +2,55 @@
 #define S_STACK_H
 #include <stdio.h>
 
-//TODO Undef all name
-//TODO Check size and capacity < MAX
+#define PROCESSOR 0
+#define DEBUG 1
 
+#define OFF 0
+#define ON 1
+
+
+#define MOD_WORK PROCESSOR
+//! Выбор типа работы
+
+
+#if MOD_WORK == PROCESSOR
+
+//! Тип данных не должен меняться
+typedef long long int stmn_t;
+const char name_type[] = "long long int";
+#define PRINT_ELEMENT(num) { \
+   printf("%lld", num); \
+}
+
+const int SIZE_ADD_CAPACITY = 1;
+
+#define AUTO_REALLOC OFF
+#define COMPLETION_DATA OFF
+#define HASH_SECURE OFF
+
+#else
+
+#define BIRD_SECURE ON
+#define HASH_SECURE ON
+#define COMPLETION_DATA ON
+
+
+//----------------------------------------------------
+//! Можно менять тип данных
 typedef long long int stmn_t;
 const char name_type[] = "long long int";
 //! При смене типа меняем спецификатор ввода
 #define PRINT_ELEMENT(num) { \
    printf("%lld", num); \
 }
+//---------------------------------------------------------
+const stmn_t BIRD_NUM = 7777;
+const int SIZE_ADD_CAPACITY = BIRD_SECURE;
 
-const stmn_t MAX_MEAN = 1e8;
-const stmn_t MIN_MEAN = -1e8;
-
-
-const stmn_t POISON_NUM = 0; //* Если мы планируем добавлять другие типы с невозможными значениями
-const stmn_t BIRD_NUM = 0; //* Чисто для теста
-const int SIZE_ADD_CAPACITY = 0;
-
-const int MIN_ADDRESS = 8000;
-const int AMOUNT_PRINT_ELEMENT = 10;
-const int MODIFICATOR_REALLOC = 2;
-
-
-#define USER_MOD 0
-#define DEBUG 1
-#define AUTO_REALLOC 0
-#define NOT_AUTO_REALLOC 1
-
-
-#define MOD_START USER_MOD
-#define REALLOC_TYPE NOT_AUTO_REALLOC
-#define COMPLETION_DATA 0
 
 
 #define STRUCT_INFORMATION
+#define STRUCT_HASH
 
 struct error_inf{
    int current_error;
@@ -50,9 +64,52 @@ struct location_inf{
    int creation_line;
 };
 
+struct hash_inf{
+   ssize_t hash_code;
+   // int start_code; // Можно в дальнейшем добавить в качестве усложнения для взлома
+};
+#endif
+
+const stmn_t MAX_MEAN = 1e8;
+const stmn_t MIN_MEAN = -1e8;
+const size_t START_HASH_CODE = 5318;
+const stmn_t POISON_NUM = -3333;
+const int MODIFICATOR_REALLOC = 2;
+const int MIN_ADDRESS = 8000;
+const int AMOUNT_PRINT_ELEMENT = 10;
 
 
-#if MOD_START == DEBUG
+#if HASH_SECURE == ON
+
+   #define STRUCT_HASH \
+    hash_inf inf_hash_code;
+
+   #define CHECK_HASH_CODE(stack_address, return_error) { \
+    size_t new_hash = make_hash_code(stack_address); \
+   \
+    if (new_hash != stack_address->inf_hash_code.hash_code) { \
+        return_error |= BAD_HASH; \
+    } \
+   }
+
+   #define REPLACE_HASH_CODE(stack_address) { \
+    (stack_address)->inf_hash_code.hash_code = make_hash_code(stack_address); \
+   }
+
+#else
+
+   #define STRUCT_HASH
+
+   #define CHECK_HASH_CODE(stack_address) (void(0))
+   #define REPLACE_HASH_CODE(stack_address) (void(0))
+
+#endif // HASH_SECURE == 1
+
+
+
+
+#if MOD_WORK == DEBUG
+
    #define STRUCT_INFORMATION \
     error_inf inf_adr_error; \
     location_inf inf_adr_location;
@@ -63,6 +120,7 @@ struct stack_struct{
    ssize_t capacity;
 
    STRUCT_INFORMATION
+   STRUCT_HASH
 };
 
    #define ERROR_FUNC_RETURN(stack_address) { \
@@ -97,7 +155,7 @@ struct stack_struct{
     }\
    }
 
-   #if REALLOC_TYPE == AUTO_REALLOC
+   #if AUTO_REALLOC == AUTO_REALLOC
    #define STACK_PUSH_CHECK(stack_address) { \
     if ((stack_address)->capacity <= stack_address->size) { \
        stack_realloc(stack_address); \
@@ -106,13 +164,13 @@ struct stack_struct{
 
    #else // NOT_AUTO_REALLOC
    #define STACK_PUSH_CHECK(stack_address) { \
-    if ((stack_address)->capacity <= stack_address->size) { \
+    if ((stack_address)->capacity <= stack_address->size + 2 * SIZE_ADD_CAPACITY) { \
        (stack_address)->inf_adr_error.current_error = BAD_PUSH_SIZE; \
        ERROR_FUNC_RETURN(stack_address); \
     }\
    }
 
-   #endif // REALLOC_TYPE == AUTO_REALLOC
+   #endif // AUTO_REALLOC == AUTO_REALLOC
 
    #define STACK_PUSH_NUM_CHECK(stack_address, push_mean) { \
       if (push_mean > MAX_MEAN || push_mean < MIN_MEAN) { \
@@ -128,13 +186,6 @@ struct stack_struct{
        ERROR_FUNC_RETURN(stack_address); \
     } \
    }
-
-   // #define STACK_REALLOC_SIZE(stack_address) { \
-   //  if ((stack_address)->size > ) { \
-   //     (stack_address)->inf_adr_error.current_error = BAD_REALLOC; \
-   //     ERROR_FUNC_RETURN(stack_address); \
-   //  } \
-   // }
 
    #define STACK_REALLOC_ADDRESS(stack_address, buffer_address){ \
     if (buffer_address == NULL) { \
@@ -155,10 +206,6 @@ struct stack_struct{
    stmn_t* data;
    ssize_t size;
    ssize_t capacity;
-
-   STRUCT_INFORMATION
-   // error_inf inf_adr_error;
-   // location_inf inf_adr_location;
 };
    #define ERROR_FUNC_RETURN(stack_address) (void(0))
    #define STACK_STR_CAPACITY_CHECK(stack_addres, start_capacity) (void(0))
@@ -190,7 +237,8 @@ enum stack_error_t{
     BAD_CREATE_CALLOC = 1024,
     PUSH_MEAN_WITHOUT_LIMIT = 2048,
     BIRD_NOT_CORRECT = 4096,
-    MUST_STOP = 8192
+    BAD_HASH = 8192,
+    MUST_STOP = 16384
 };
 
 
@@ -207,6 +255,7 @@ const char ALL_ERRORS[20][40] = {"BAD_DATA_ADDRESS",
                                 "BAD_CREATE_CALLOC",
                                 "PUSH_MEAN_WITHOUT_LIMIT",
                                 "BIRD_NOT_CORRECT",
+                                "BAD_HASH",
                                 "MUST_STOP"
 };
 
@@ -234,6 +283,8 @@ stack_error_t stack_realloc(stack_struct* stack_address);
 
 int stack_destruct(stack_struct* stack_address);
 
+
+ssize_t make_hash_code(stack_struct* stack_address);
 
 
 #define NAME_RETURN(NAME_FILE) { #NAME_FILE }

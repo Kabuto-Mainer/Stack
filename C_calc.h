@@ -9,16 +9,16 @@
 //!                   stmn_t = long long int
 //! Это важно, т.к. при правильной компиляции program_file проверки не нужны и будут лишь мешать
 
-#define MODE_PROSEC DEBUG
+#define PRINT_MODE DEBUG
 
-#if MODE_PROSEC == DEBUG
+#if PRINT_MODE == DEBUG
 #define PRINT_ARGUMENT \
  printf("Arg_1 = %lld\n", argument_1); \
  printf("Arg_2 = %lld\n", argument_2);
 
 #else PRINT_ARGUMENT (void(0))
 
-#endif // MODE_PROSEC== DEBUG
+#endif // PRINT_MODE== DEBUG
 
 enum NUM_COMANDS{
     NUM_PUSH = 0,
@@ -54,6 +54,7 @@ const char STR_MASS_COMANDS[10][6] = {
 const size_t MIN_MASS_SIZE = 40; // > 9
 const int MODE_REALLOC = 4;
 const size_t MODE_DECISION = 1;
+//! Не работает для 2 и более OUT PUT
 
 const long long int MAX_MEAN_C = 1e15;
 const long long int MIN_MEAN_C = -1e15;
