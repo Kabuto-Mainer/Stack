@@ -6,30 +6,10 @@
 #include "support.h"
 #include "color.h"
 
+void print_mods();
+
 int main() {
-    if (MOD_WORK == DEBUG) {
-        printf("--- Activated debug mode ---\n");
-    }
-
-    else {
-        printf("--- Activated processor mode ---\n");
-    }
-
-    if (AUTO_REALLOC == ON) {
-        printf("-- Activated auto realloc mode ---\n");
-    }
-
-    if (COMPLETION_DATA == ON) {
-        printf("--- Activation completion data ---\n");
-    }
-
-    if (BIRD_SECURE == ON) {
-        printf("-- Using bird secure ---\n");
-    }
-
-    if (HASH_SECURE == ON) {
-        printf("-- Using hash secure ---\n");
-    }
+    print_mods();
 
 
     FILE* file_address = fopen_file("test_proccec.txt", "r");
@@ -60,7 +40,32 @@ int main() {
     return 0;
 }
 
+void print_mods() {
+    if (MOD_WORK == DEBUG) {
+        printf("--- Activated debug mode ---\n");
+    }
 
+    else {
+        printf("--- Activated processor mode ---\n");
+    }
+
+    if (AUTO_REALLOC == ON) {
+        printf("-- Activated auto realloc mode ---\n");
+    }
+
+    if (COMPLETION_DATA == ON) {
+        printf("--- Activation completion data ---\n");
+    }
+
+    if (BIRD_SECURE == ON) {
+        printf("-- Using bird secure ---\n");
+    }
+
+    if (HASH_SECURE == ON) {
+        printf("-- Using hash secure ---\n");
+    }
+
+}
 
 
 

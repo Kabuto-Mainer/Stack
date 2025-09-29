@@ -72,7 +72,6 @@ int my_compiler(FILE* stream, calc_program_file* result_address) {
             current_size += SZ_C;
 
             memcpy( (char*)comand_address + current_size, &argument, SZ_A);
-            // *( (long long int*) (((char*) comand_address) + current_size) ) = argument;
             current_size += SZ_A;
 
             push_counter++;
@@ -228,7 +227,7 @@ int run_program(calc_program_file* program_struct) {
                 long long int argument = 0;
 
                 stack_pop(&stack, &argument);
-                printf("%lld", argument);
+                // printf("%lld", argument);
 
                 break;
             }

@@ -23,8 +23,7 @@ const char name_type[] = "long long int";
    printf("%lld", num); \
 }
 
-const int SIZE_ADD_CAPACITY = 1;
-
+//-------------------------------------
 #ifndef AUTO_REALLOC
 #define AUTO_REALLOC OFF
 #endif
@@ -40,9 +39,11 @@ const int SIZE_ADD_CAPACITY = 1;
 #ifndef BIRD_SECURE
 #define BIRD_SECURE OFF
 #endif
+//-------------------------------------
 
 #else
 
+//-------------------------------------
 #ifndef BIRD_SECURE
 #define BIRD_SECURE ON
 #endif
@@ -54,9 +55,9 @@ const int SIZE_ADD_CAPACITY = 1;
 #ifndef COMPLETION_DATA
 #define COMPLETION_DATA ON
 #endif
+//-------------------------------------
 
-
-//----------------------------------------------------
+//-------------------------------------
 //! Можно менять тип данных
 typedef long long int stmn_t;
 const char name_type[] = "long long int";
@@ -64,10 +65,9 @@ const char name_type[] = "long long int";
 #define PRINT_ELEMENT(num) { \
    printf("%lld", num); \
 }
-//---------------------------------------------------------
+//-------------------------------------
+// Настраиваем сами
 const stmn_t BIRD_NUM = 7777;
-const int SIZE_ADD_CAPACITY = BIRD_SECURE;
-
 
 
 #define STRUCT_INFORMATION
@@ -85,19 +85,28 @@ struct location_inf{
    int creation_line;
 };
 
+
+#if HASH_SECURE == ON
 struct hash_inf{
    ssize_t hash_code;
    // int start_code; // Можно в дальнейшем добавить в качестве усложнения для взлома
 };
 #endif
 
+#endif
+
+// Максимальные значения аргументов
 const stmn_t MAX_MEAN = 1e8;
 const stmn_t MIN_MEAN = -1e8;
+
 const size_t START_HASH_CODE = 5318;
 const stmn_t POISON_NUM = -3333;
+
+// Тут желательно ничего не менять
 const int MODIFICATOR_REALLOC = 2;
 const int MIN_ADDRESS = 8000;
 const int AMOUNT_PRINT_ELEMENT = 10;
+const int SIZE_ADD_CAPACITY = BIRD_SECURE;
 
 
 #if HASH_SECURE == ON

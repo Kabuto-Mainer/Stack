@@ -2,26 +2,19 @@
 #define C_CALC_H
 
 #include "S_stack.h"
-//! При использовании изменить в S_stack.h:
-//!                   MOD_START = USER_MOD
-//!                   REALLOC_TYPE = NOT_AUTO_REALLOC
-//!                   SIZE_ADD_CAPACITY = 0
-//!                   BIRD_NUM = POISON_NUM = 0
-//!                   stmn_t = long long int
-//! Это важно, т.к. при правильной компиляции program_file проверки не нужны и будут лишь мешать
 
-#define PRINT_MODE ON
+#define PRINT_ARG OFF
 
-#if PRINT_MODE == ON
+#if PRINT_ARG == ON
 #define PRINT_ARGUMENT \
  printf("Arg_1 = %lld\n", argument_1); \
  printf("Arg_2 = %lld\n", argument_2);
 
-#else PRINT_ARGUMENT (void(0))
+#else PRINT_NODE (void(0))
 
-#endif // PRINT_MODE== DEBUG
+#endif // PRINT_ARG== DEBUG
 
-enum NUM_COMANDS{
+enum INT_COMANDS{
     NUM_PUSH = 0,
     NUM_ADD = 1,
     NUM_SUB = 2,
@@ -74,15 +67,13 @@ struct calc_program_file{
 };
 
 
-#define COM_MASS_COMAND *(((char*) comands_massive) + current_amount_comands * SZ_B)
-
 #define STACK_GET_ARGUMENTS  \
  long long int argument_1 = 0; \
  long long int argument_2 = 0; \
  \
  stack_pop(&stack, &argument_1); \
  stack_pop(&stack, &argument_2); \
- PRINT_ARGUMENT
+ PRINT_ARG
 
 
 
