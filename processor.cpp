@@ -43,7 +43,7 @@ int processor_f(const char* name_asm_file) {
         return -1;
     }
 
-    int* bin_code = create_buffer(amount_elements);
+    int* bin_code = create_int_buffer(amount_elements);
     // int read_size = fread(bin_code, sizeof(int), amount_elements, file_bin);
     // printf("read_size: %d\n", read_size);
     // printf("amount_elements: %d\n", amount_elements);

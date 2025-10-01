@@ -2,8 +2,8 @@
 #define COMAND_H
 
 const char NAME_INPUT_FILE[] = "input.txt";
-const char NAME_BIN_FILE[] = "bin_code.asm";
-const char NAME_TEXT_FILE[] = "text_code.txt";
+const char NAME_BIN_FILE[] = "bin_code.bin";
+const char NAME_TEXT_FILE[] = "text_code.asm";
 
 
 const char STR_MASS_COMANDS[10][6] = {

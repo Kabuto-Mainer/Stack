@@ -16,11 +16,13 @@ stack_error_t stack_stk(stack_struct* stack_address, const long int start_capaci
     assert(file_name);
     assert(stack_name);
 
+//------------------------------
 #if MOD_WORK == PROCESSOR
     (void) line;
     (void) stack_name;
     (void) file_name;
 #endif
+//-------------------------------
 
     if (file_name == NULL) {
         printf("FILE NULL ADDRESS: Name: %s\n", stack_name);
@@ -33,6 +35,7 @@ stack_error_t stack_stk(stack_struct* stack_address, const long int start_capaci
 
     stack_address->capacity = start_capacity;
     stack_address->size = 0;
+
 
     STACK_STR_INF(stack_address);
     STACK_STR_CAPACITY_CHECK(stack_address, start_capacity);
@@ -47,7 +50,7 @@ stack_error_t stack_stk(stack_struct* stack_address, const long int start_capaci
     // stack_address->size = 0;
     stack_address->data = buffer_address + SIZE_ADD_CAPACITY;
 
-
+//------------------------------------------------------------------
 #if COMPLETION_DATA == ON
     for (long int i = SIZE_ADD_CAPACITY; i < start_capacity; i++) {
         buffer_address[i] = POISON_NUM;
@@ -58,11 +61,13 @@ stack_error_t stack_stk(stack_struct* stack_address, const long int start_capaci
         buffer_address[start_capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
     }
 #endif // COMPLETION_DATA
+//------------------------------------------------------------------
 
+//--------------------------------
 #if HASH_SECURE == ON
 REPLACE_HASH_CODE(stack_address);
 #endif // HASH_SECURE == 1
-
+//----------------------------------
 
     return NOT_ERRORS;
 }
@@ -87,9 +92,11 @@ stack_error_t stack_push(stack_struct* stack_address, const stmn_t mean_to_push)
 
     stack_address->data[stack_address->size++] = mean_to_push;
 
+//---------------------------------
 #if HASH_SECURE == ON
 REPLACE_HASH_CODE(stack_address);
 #endif
+//-----------------------------------
 
     DUMP_NOT_CORRECT_STACK(stack_address);
 
@@ -106,15 +113,21 @@ stack_error_t stack_pop(stack_struct* stack_address, stmn_t* mean_pop_address) {
 
     *mean_pop_address = stack_address->data[--(stack_address->size)];
 
+//--------------------------------
 #if HASH_SECURE == 1
 REPLACE_HASH_CODE(stack_address);
 #endif
+//---------------------------------
 
     DUMP_NOT_CORRECT_STACK(stack_address);
 
     return NOT_ERRORS;
 }
 
+
+//-----------------------------------------------------------------------------------------
+// Функция stack_error при разных MOD_WORK
+// Если DEBUG - то выполняем все проверки
 #if MOD_WORK == DEBUG
 int stack_error(stack_struct* stack_address) {
     // Нужно возвращать int для передачи не одной ошибки, а нескольких
@@ -150,15 +163,18 @@ int stack_error(stack_struct* stack_address) {
         return_error |= BIRD_NOT_CORRECT; // 4096
     }
 
+//-----------------------------------------
 #if HASH_SECURE == ON
 CHECK_HASH_CODE(stack_address, return_error);
 #endif
+//-------------------------------------------
 
     // printf("code error = %d\n", return_error);
     stack_address->inf_adr_error.current_error = return_error;
     return return_error;
 }
 
+//Если processor - то вообще не должна вызываться
 #else
 int stack_error(stack_struct* stack_address) {
     printf("ERROR with stack_error in USER_MODE\n");
@@ -166,7 +182,7 @@ int stack_error(stack_struct* stack_address) {
     return 0;
 }
 #endif // MOD_WORK == DEBUG
-
+//----------------------------------------------------------------------------------------
 
 
 stack_error_t stack_realloc(stack_struct* stack_address) {
@@ -183,6 +199,7 @@ stack_error_t stack_realloc(stack_struct* stack_address) {
     stack_address->capacity *= MOD_REALLOC;
     stack_address->data = buffer_address + SIZE_ADD_CAPACITY;
 
+//-------------------------------------------------------------------
 #if COMPLETION_DATA == ON
     for (ssize_t i = SIZE_ADD_CAPACITY; i < stack_address->capacity; i++) {
         buffer_address[i] = POISON_NUM;
@@ -193,15 +210,15 @@ stack_error_t stack_realloc(stack_struct* stack_address) {
         buffer_address[stack_address->capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
     }
 #endif // COMPLETION_DATA
-
-    // if (SIZE_ADD_CAPACITY > 0) {
-    //     buffer_address[0] = BIRD_NUM;
-    //     buffer_address[stack_address->capacity + SIZE_ADD_CAPACITY] = BIRD_NUM;
-    // }
+//------------------------------------------------------------------------
 
     return NOT_ERRORS;
 }
 
+
+//--------------------------------------------------------------------------------------------------------
+// dump и принты для него
+// Опять же, если DEBUG - то stack_dump - необходим
 #if MOD_WORK == DEBUG
 int stack_dump(stack_struct* stack_address) {
     assert(stack_address);
@@ -236,6 +253,7 @@ int stack_dump(stack_struct* stack_address) {
     printf("capacity = %s%zd%s\n", _B_, stack_address->capacity, _P_);
     printf("data %s[%p]%s\n", _B_, stack_address->data, _P_);
 
+//------------------------------------------------------------------------------
 #if HASH_SECURE == 1
 
 printf("\n");
@@ -243,6 +261,7 @@ printf("inital hash = %s%zd%s\n", _B_, stack_address->inf_hash_code.hash_code, _
 printf("modified hash = %s%zd%s\n", _B_, make_hash_code(stack_address), _P_);
 
 #endif
+//------------------------------------------------------------------------------
 
     printf("    {\n");
 
@@ -254,14 +273,6 @@ printf("modified hash = %s%zd%s\n", _B_, make_hash_code(stack_address), _P_);
     return 0;
 }
 
-#else
-int stack_dump(stack_struct* stack_address) {
-    printf("ERROR with dump in USER_MOD\n");
-    printf("But input: [%p]\n", stack_address);
-    return 0;
-}
-
-#endif //MOS_START == DEBUG
 
 void description_error(const int error_with_stack) {
     if ((error_with_stack & BAD_DATA_ADDRESS) == BAD_DATA_ADDRESS) {
@@ -341,9 +352,6 @@ void description_error(const int error_with_stack) {
 }
 
 
-
-
-#if MOD_WORK == DEBUG
 void print_errors_for_dump(const int error_with_stack){
     int buffer = 0;
     for (int i = 1; i < MUST_STOP; i <<= 1) {
@@ -353,6 +361,7 @@ void print_errors_for_dump(const int error_with_stack){
         buffer++;
     }
 }
+
 
 void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
     assert(stack_address);
@@ -387,18 +396,29 @@ void print_stack_for_dump(stack_struct* stack_address, const int error_with_stac
     }
 }
 
+
+// В processor - не должны вызываться
 #else
+int stack_dump(stack_struct* stack_address) {
+    printf("ERROR with dump in USER_MOD\n");
+    printf("But input: [%p]\n", stack_address);
+    return 0;
+}
+
+
 void print_errors_for_dump(const int error_with_stack) {
     printf("ERROR with print_errors_for_dump in USER_MODE\n");
     printf("But input: %d\n", error_with_stack);
 }
+
 
 void print_stack_for_dump(stack_struct* stack_address, const int error_with_stack) {
     printf("ERROR with print_stack_for_dump in USER_MODE\n");
     printf("But input: [%p] %d\n", stack_address, error_with_stack);
 }
 
-#endif // MOD_WORK == DEBUG
+#endif //MOS_START == DEBUG
+//-------------------------------------------------------------------------------------------------
 
 ssize_t make_hash_code(stack_struct* stack_address) {
     assert(stack_address);

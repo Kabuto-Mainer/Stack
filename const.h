@@ -10,9 +10,17 @@
 
 #define MOD_WORK DEBUG
 
+// Канареечная зашита
 #define BIRD_SECURE ON
+
+// Хеш зашиты
 #define HASH_SECURE ON
+
+// Автоматическое увеличение стека
 #define AUTO_REALLOC ON
+
+// Заполнение стека
+//* Необходимо для работы Канареечной и Хеш зашиты
 #define COMPLETION_DATA ON
 
 
@@ -27,7 +35,7 @@ const char name_type[] = "int";
 const int MOD_REALLOC = 2;
 
 // Множитель для увеличения точности
-// Работает для самым лучшим образом
+// Работает не самым лучшим образом
 const int MODE_DECISION = 1;
 
 // Начальное количество команд
