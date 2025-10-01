@@ -219,7 +219,7 @@ int stack_dump(stack_struct* stack_address) {
     print_errors_for_dump(error_with_stack);
     printf("In Function: %s:%d\n\n", stack_address->inf_adr_error.error_file,
                                   stack_address->inf_adr_error.error_line);
-    print_error(error_with_stack);
+    description_error(error_with_stack);
     // printf("ERROR_WITH_STACK = %d\n", error_with_stack);
 
     if ((error_with_stack & BAD_CREATE_CALLOC) == BAD_CREATE_CALLOC ||
@@ -263,7 +263,7 @@ int stack_dump(stack_struct* stack_address) {
 
 #endif //MOS_START == DEBUG
 
-void print_error(const int error_with_stack) {
+void description_error(const int error_with_stack) {
     if ((error_with_stack & BAD_DATA_ADDRESS) == BAD_DATA_ADDRESS) {
         printf(_R_ "-- %s ---\n", ALL_ERRORS[0]);
         printf("Data Address < %d\n%s\n", MIN_ADDRESS, _N_);

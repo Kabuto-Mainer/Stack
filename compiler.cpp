@@ -60,7 +60,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
             return -1;
         }
 
-        // printf("comand: %s\n", comand);
+        printf("comand: %s\n", comand);
         if (current_size == max_size - (2 * sizeof(int))) {
             bin_code = realloc_buffer(bin_code, (size_t) max_size);
 
@@ -77,7 +77,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         if (strcmp(comand, STR_MASS_COMANDS[INT_PUSH]) == 0) {
             if (fscanf(input_stream, "%d", &argument) != 1) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: not found argument after PUSH\n");
 
                 free(bin_code);
@@ -87,7 +87,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
             argument *= MODE_DECISION;
 
             if (argument < MIN_MEAN || argument > MAX_MEAN) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too big num in argument\n");
                 free(bin_code);
                 return -1;
@@ -104,7 +104,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         else if (strcmp(comand, STR_MASS_COMANDS[INT_ADD]) == 0) {
             if (push_counter < 2) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too few arguments to ADD\n");
                 free(bin_code);
                 return -1;
@@ -120,7 +120,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         else if (strcmp(comand, STR_MASS_COMANDS[INT_SUB]) == 0) {
             if (push_counter < 2) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too few arguments to SUB\n");
                 free(bin_code);
                 return -1;
@@ -136,7 +136,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         else if (strcmp(comand, STR_MASS_COMANDS[INT_DIV]) == 0) {
             if (push_counter < 2) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too few arguments to DIV\n");
                 free(bin_code);
                 return -1;
@@ -153,7 +153,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         else if (strcmp(comand, STR_MASS_COMANDS[INT_MUL]) == 0) {
             if (push_counter < 2) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too few arguments to MULL\n");
                 free(bin_code);
                 return -1;
@@ -170,7 +170,7 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
 
         else if (strcmp(comand, STR_MASS_COMANDS[INT_OUT]) == 0) {
             if (push_counter < 1) {
-                printf("%s:%d: ", name_input_file, amount_cmd);
+                printf("%s:%d: ", name_input_file, amount_cmd + 1);
                 printf("ERROR: too few argument to OUT\n");
                 free(bin_code);
                 return -1;
@@ -195,7 +195,8 @@ int compiler_f(const char* name_input_file, const char* name_asm_file, const cha
         }
 
         else {
-            // syntax_error();
+            printf("%s:%d: ", name_input_file, amount_cmd + 1);
+            printf("Invalid syntax error\n");
             free(bin_code);
             return -1;
         }

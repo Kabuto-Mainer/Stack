@@ -54,7 +54,7 @@ int stack_dump(stack_struct* stack_address);
 
 void print_errors_for_dump(const int error_with_stack);
 
-void print_error(const int error_with_stack);
+void description_error(const int error_with_stack);
 
 void print_stack_for_dump(stack_struct* stack_address,
                           const int error_with_stack);
